@@ -52,7 +52,7 @@ class DetectorApp:
     def open_settings(self):
         settings_window = tk.Toplevel(self.root)
         settings_window.title("Settings")
-        settings_window.geometry("300x200")
+        settings_window.geometry("300x250")
         settings_window.resizable(False, False)
 
         tk.Label(settings_window, text="Camera Input Settings", font=("Arial", 12, "bold")).pack(pady=10)
@@ -62,17 +62,27 @@ class DetectorApp:
         cam_entry.insert(0, str(self.camera_index))
         cam_entry.pack(pady=5)
 
+        # --- Control Mode Dropdown ---
+        tk.Label(settings_window, text="Control Scheme:").pack(pady=8)
+        control_var = tk.StringVar(value=self.detector.control_mode)
+        control_menu = tk.OptionMenu(settings_window, control_var, "WASD", "Arrow")
+        control_menu.pack(pady=5)
+
         def save_settings():
             try:
                 new_index = int(cam_entry.get())
                 self.camera_index = new_index
-                messagebox.showinfo("Settings Saved", f"✅ Camera index set to {new_index}")
+                # Save control mode to detector
+                self.detector.control_mode = control_var.get()
+                messagebox.showinfo("Settings Saved",
+                                    f"✅ Camera index set to {new_index}\n🎮 Control mode: {self.detector.control_mode}")
                 settings_window.destroy()
                 self.refresh_label()
             except ValueError:
                 messagebox.showerror("Invalid Input", "❌ Please enter a valid number.")
 
-        tk.Button(settings_window, text="💾 Save", command=save_settings, width=15, bg="#4CAF50", fg="white").pack(pady=15)
+        tk.Button(settings_window, text="💾 Save", command=save_settings,
+                  width=15, bg="#4CAF50", fg="white").pack(pady=15)
 
     def refresh_label(self):
         for widget in self.root.pack_slaves():

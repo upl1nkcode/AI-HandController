@@ -17,12 +17,20 @@ class GestureDetector:
         )
         print("✅ MediaPipe Hands model loaded successfully.")
 
-        # Gesture-to-key mapping
-        self.gesture_to_key = {
+        self.control_mode = "WASD"
+
+        # Mapping dictionaries
+        self.gesture_to_key_wasd = {
             "open": "w",
             "fist": "s",
             "left": "a",
             "right": "d"
+        }
+        self.gesture_to_key_arrows = {
+            "open": "up",
+            "fist": "down",
+            "left": "left",
+            "right": "right"
         }
 
     def recognize_gesture(self, landmarks):
@@ -149,7 +157,9 @@ class GestureDetector:
                                     (0, 255, 0), 2)
 
                         # Simulate key press
-                        key = self.gesture_to_key.get(gesture)
+                        # Choose mapping based on control mode
+                        mapping = self.gesture_to_key_wasd if self.control_mode == "WASD" else self.gesture_to_key_arrows
+                        key = mapping.get(gesture)
                         if key:
                             pyautogui.press(key)
 
