@@ -1,6 +1,6 @@
 # AI-HandController v0.1
 - Cota Andrei & Cretu Beatrice
-Lightweight Python prototype that maps simple hand gestures to keyboard input using MediaPipe, OpenCV and PyAutoGUI. Includes a small Tkinter GUI to choose image / video / webcam modes and basic settings.
+- Lightweight Python prototype that maps simple hand gestures to keyboard input using MediaPipe, OpenCV and PyAutoGUI. Includes a small Tkinter GUI to choose image / video / webcam modes and basic settings.
 
 ## Features (V0.1)
 - Detect gestures from:
