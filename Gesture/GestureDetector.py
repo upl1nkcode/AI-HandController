@@ -2,11 +2,12 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import pyautogui
-
+import time
 class GestureDetector:
     def __init__(self):
         self.mp_hands = mp.solutions.hands
         self.mp_drawing = mp.solutions.drawing_utils
+        self.prev_x, self.prev_y = 0, 0
 
         # Initialize Mediapipe Hands model
         self.hands = self.mp_hands.Hands(
@@ -32,6 +33,27 @@ class GestureDetector:
             "left": "left",
             "right": "right"
         }
+
+    def handle_mouse_mode(self, hand_landmarks):
+        index_tip = hand_landmarks.landmark[self.mp_hands.HandLandmark.INDEX_FINGER_TIP]
+        thumb_tip = hand_landmarks.landmark[self.mp_hands.HandLandmark.THUMB_TIP]
+
+        screen_w, screen_h = pyautogui.size()
+        mouse_x, mouse_y = int(index_tip.x * screen_w), int(index_tip.y * screen_h)
+
+        #For smooth movement
+
+        self.prev_x = self.prev_x*0.07 + mouse_x*0.2
+        self.prev_y = self.prev_y*0.07 + mouse_y*0.2
+        pyautogui.moveTo(self.prev_x, self.prev_y)
+
+        dist = ((thumb_tip.x - index_tip.x) ** 2 + (thumb_tip.y - index_tip.y) ** 2) ** 0.5
+        if dist < 0.05:
+            pyautogui.click()
+            time.sleep(0.1)
+
+
+
 
     def recognize_gesture(self, landmarks):
         """
@@ -125,7 +147,7 @@ class GestureDetector:
         cap.release()
         cv2.destroyAllWindows()
 
-    def detect_webcam(self, cam_index=3):
+    def detect_webcam(self, cam_index=0):
         cap = cv2.VideoCapture(cam_index)
         if not cap.isOpened():
             print("❌ Error: Cannot access webcam.")
@@ -147,21 +169,24 @@ class GestureDetector:
                         frame, hand_landmarks, self.mp_hands.HAND_CONNECTIONS
                     )
 
-                    gesture = self.recognize_gesture(hand_landmarks)
-                    if gesture:
-                        print(f"🖐 Gesture detected: {gesture}")
-
-                        # Display the gesture name on the frame
-                        cv2.putText(frame, f"Gesture: {gesture.upper()}",
-                                    (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
-                                    (0, 255, 0), 2)
-
-                        # Simulate key press
-                        # Choose mapping based on control mode
-                        mapping = self.gesture_to_key_wasd if self.control_mode == "WASD" else self.gesture_to_key_arrows
-                        key = mapping.get(gesture)
-                        if key:
-                            pyautogui.press(key)
+                    # --- Choose control mode ---
+                    if self.control_mode == "Mouse":
+                        self.handle_mouse_mode(hand_landmarks)
+                        cv2.putText(frame, "Mode: MOUSE", (10, 30),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 0), 2)
+                    else:
+                        gesture = self.recognize_gesture(hand_landmarks)
+                        if gesture:
+                            print(f"🖐 Gesture detected: {gesture}")
+                            cv2.putText(frame, f"Gesture: {gesture.upper()}",
+                                        (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
+                                        (0, 255, 0), 2)
+                            mapping = (self.gesture_to_key_wasd
+                                       if self.control_mode == "WASD"
+                                       else self.gesture_to_key_arrows)
+                            key = mapping.get(gesture)
+                            if key:
+                                pyautogui.press(key)
 
             cv2.imshow("Gesture Control - Webcam", frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -169,3 +194,5 @@ class GestureDetector:
 
         cap.release()
         cv2.destroyAllWindows()
+
+

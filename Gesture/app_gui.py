@@ -65,7 +65,7 @@ class DetectorApp:
         # --- Control Mode Dropdown ---
         tk.Label(settings_window, text="Control Scheme:").pack(pady=8)
         control_var = tk.StringVar(value=self.detector.control_mode)
-        control_menu = tk.OptionMenu(settings_window, control_var, "WASD", "Arrow")
+        control_menu = tk.OptionMenu(settings_window, control_var, "WASD", "Arrow", "Mouse")
         control_menu.pack(pady=5)
 
         def save_settings():
