@@ -43,8 +43,8 @@ class GestureDetector:
 
         #For smooth movement
 
-        self.prev_x = self.prev_x*0.07 + mouse_x*0.2
-        self.prev_y = self.prev_y*0.07 + mouse_y*0.2
+        self.prev_x = self.prev_x*0.8 + mouse_x*0.2
+        self.prev_y = self.prev_y*0.8 + mouse_y*0.2
         pyautogui.moveTo(self.prev_x, self.prev_y)
 
         dist = ((thumb_tip.x - index_tip.x) ** 2 + (thumb_tip.y - index_tip.y) ** 2) ** 0.5
